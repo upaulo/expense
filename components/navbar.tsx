@@ -2,14 +2,16 @@
 
 import {
 	ArrowLeftRight,
+	Check,
 	Home,
 	Plus,
 	Receipt,
 	ShoppingCart,
+	X,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 
 function Navbar() {
 	const [active, setActive] = useState<string | null>(null);
@@ -36,85 +38,127 @@ function Navbar() {
 		style: { flex: active === id ? 1.4 : 1 },
 	});
 
+	const isSavePage =
+		pathname === "/create/product/new" || pathname === "/create/bill";
+
 	return (
 		<nav
 			ref={navRef}
 			className="fixed right-8 bottom-8 left-8 z-100 flex flex-col items-center gap-2"
 		>
 			{/* Popup */}
-			<div
-				className={`flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-2 backdrop-blur-md transition-all duration-200 ease-out${isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0"}
-				`}
-			>
-				<button
-					type="button"
-					onClick={() => {
-						setIsOpen(false);
-						router.push("/create/product");
-					}}
-					className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 font-medium text-sm text-white backdrop-blur-sm transition-all hover:bg-white/20 active:scale-95"
+			{!isSavePage && (
+				<div
+					className={`flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-2 backdrop-blur-md transition-all duration-200 ease-out ${isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0"}`}
 				>
-					<ShoppingCart className="size-4" />
-					Product
-				</button>
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => {
+							setIsOpen(false);
+							router.push("/create/product/new");
+						}}
+						className="w-23 gap-2 bg-white/10"
+					>
+						<ShoppingCart className="size-4" />
+						Item
+					</Button>
 
-				<div className="h-4 w-px bg-white/20" />
+					<div className="h-4 w-px bg-white/20" />
 
-				<button
-					type="button"
-					onClick={() => {
-						setIsOpen(false);
-						router.push("/create/bill");
-					}}
-					className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 font-medium text-sm text-white backdrop-blur-sm transition-all hover:bg-white/20 active:scale-95"
-				>
-					<Receipt className="size-4" />
-					Bill
-				</button>
-			</div>
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => {
+							setIsOpen(false);
+							router.push("/create/bill");
+						}}
+						className="w-23 gap-2 bg-white/10"
+					>
+						<Receipt className="size-4" />
+						Bill
+					</Button>
+				</div>
+			)}
 
 			{/* Navbar */}
 			<div className="flex w-full items-center justify-around rounded-full border border-white/10 bg-white/10 px-4 py-1 backdrop-blur-md">
-				<Button
-					variant={pathname === "/" && !isOpen ? "active" : "ghost"}
-					size="icon"
-					{...btnProps("home")}
-					onClick={() => {
-						setIsOpen(false);
-						router.push("/");
-					}}
-				>
-					<Home
-						className={`size-6 transition-transform duration-100 ${active === "home" ? "scale-125" : "scale-100"}`}
-					/>
-				</Button>
+				{isSavePage ? (
+					<>
+						<Button
+							variant="ghost"
+							size="icon-lg"
+							{...btnProps("cancel")}
+							onClick={() => router.push("/")}
+						>
+							<X
+								className={`size-8 transition-transform duration-100 ${active === "cancel" ? "scale-125" : "scale-100"}`}
+							/>
+						</Button>
 
-				<Button
-					variant={isOpen ? "active" : "ghost"}
-					size="icon-lg"
-					{...btnProps("create")}
-					onClick={() => setIsOpen((prev) => !prev)}
-				>
-					<div
-						className={`transition-transform duration-200 ${isOpen ? "rotate-45" : "rotate-0"}`}
-					>
-						<Plus className="size-12" />
-					</div>
-				</Button>
+						<Button
+							variant="active"
+							size="icon-lg"
+							{...btnProps("save")}
+							onClick={() => {
+								router.push(
+									pathname === "/create/product/new"
+										? "/create/product"
+										: "/transactions",
+								);
+							}}
+						>
+							<Check
+								className={`size-8 transition-transform duration-100 ${active === "save" ? "scale-125" : "scale-100"}`}
+							/>
+						</Button>
+					</>
+				) : (
+					<>
+						<Button
+							variant={pathname === "/" && !isOpen ? "active" : "ghost"}
+							size="icon"
+							{...btnProps("home")}
+							onClick={() => {
+								setIsOpen(false);
+								router.push("/");
+							}}
+						>
+							<Home
+								className={`size-6 transition-transform duration-100 ${active === "home" ? "scale-125" : "scale-100"}`}
+							/>
+						</Button>
 
-				<Button
-					variant={pathname === "/transactions" && !isOpen ? "active" : "ghost"}
-					size="icon"
-					{...btnProps("transactions")}
-					onClick={() => {
-						setIsOpen(false);
-						router.push("/transactions");
-					}}
-				>
-					<ArrowLeftRight
-						className={`size-6 transition-transform duration-100 ${active === "transactions" ? "scale-125" : "scale-100"}`}
-					/>
-				</Button>
+						<Button
+							variant={isOpen ? "active" : "ghost"}
+							size="icon-lg"
+							{...btnProps("create")}
+							onClick={() => setIsOpen((prev) => !prev)}
+						>
+							<div
+								className={`transition-transform duration-200 ${isOpen ? "rotate-45" : "rotate-0"}`}
+							>
+								<Plus className="size-12" />
+							</div>
+						</Button>
+
+						<Button
+							variant={
+								pathname === "/transactions" && !isOpen ? "active" : "ghost"
+							}
+							size="icon"
+							{...btnProps("transactions")}
+							onClick={() => {
+								setIsOpen(false);
+								router.push("/transactions");
+							}}
+						>
+							<ArrowLeftRight
+								className={`size-6 transition-transform duration-100 ${active === "transactions" ? "scale-125" : "scale-100"}`}
+							/>
+						</Button>
+					</>
+				)}
 			</div>
 		</nav>
 	);
