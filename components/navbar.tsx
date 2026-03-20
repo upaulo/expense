@@ -10,13 +10,14 @@ import {
 	X,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 function Navbar() {
 	const [active, setActive] = useState<string | null>(null);
 	const [isOpen, setIsOpen] = useState(false);
-	const [activeNav, setActiveNav] = useState<"home" | "transactions">("home");
+	const [isPending, startTransition] = useTransition();
 	const pathname = usePathname();
 	const router = useRouter();
 	const navRef = useRef<HTMLElement>(null);
@@ -42,6 +43,12 @@ function Navbar() {
 	const isSavePage =
 		pathname === "/create/product/new" || pathname === "/create/bill";
 
+	const navigate = (path: string) => {
+		startTransition(() => {
+			router.push(path);
+		});
+	};
+
 	return (
 		<nav
 			ref={navRef}
@@ -54,12 +61,11 @@ function Navbar() {
 				>
 					<Button
 						variant="ghost"
-						size="icon"
+						className="w-23 gap-2 bg-white/10"
 						onClick={() => {
 							setIsOpen(false);
-							router.push("/create/product/new");
+							navigate("/create/product");
 						}}
-						className="w-23 gap-2 bg-white/10"
 					>
 						<ShoppingCart className="size-4" />
 						Item
@@ -69,12 +75,11 @@ function Navbar() {
 
 					<Button
 						variant="ghost"
-						size="icon"
+						className="w-23 gap-2 bg-white/10"
 						onClick={() => {
 							setIsOpen(false);
-							router.push("/create/bill");
+							navigate("/create/bill");
 						}}
-						className="w-23 gap-2 bg-white/10"
 					>
 						<Receipt className="size-4" />
 						Bill
@@ -90,10 +95,13 @@ function Navbar() {
 							variant="ghost"
 							size="icon-lg"
 							{...btnProps("cancel")}
-							onClick={() => router.push("/")}
+							onClick={() => navigate("/create/product")}
 						>
 							<X
-								className={`size-8 transition-transform duration-100 ${active === "cancel" ? "scale-125" : "scale-100"}`}
+								className={cn(
+									"size-8 transition-transform duration-100",
+									active === "cancel" ? "scale-125" : "scale-100",
+								)}
 							/>
 						</Button>
 
@@ -102,7 +110,7 @@ function Navbar() {
 							size="icon-lg"
 							{...btnProps("save")}
 							onClick={() => {
-								router.push(
+								navigate(
 									pathname === "/create/product/new"
 										? "/create/product"
 										: "/transactions",
@@ -110,24 +118,31 @@ function Navbar() {
 							}}
 						>
 							<Check
-								className={`size-8 transition-transform duration-100 ${active === "save" ? "scale-125" : "scale-100"}`}
+								className={cn(
+									"size-8 transition-transform duration-100",
+									active === "save" ? "scale-125" : "scale-100",
+								)}
 							/>
 						</Button>
 					</>
 				) : (
 					<>
 						<Button
-							variant={activeNav === "home" && !isOpen ? "active" : "ghost"}
+							variant={
+								pathname === "/" && !isOpen && !isPending ? "active" : "ghost"
+							}
 							size="icon"
 							{...btnProps("home")}
 							onClick={() => {
-								setActiveNav("home");
 								setIsOpen(false);
-								router.push("/");
+								navigate("/");
 							}}
 						>
 							<Home
-								className={`size-6 transition-transform duration-100 ${active === "home" ? "scale-125" : "scale-100"}`}
+								className={cn(
+									"size-6 transition-transform duration-100",
+									active === "home" ? "scale-125" : "scale-100",
+								)}
 							/>
 						</Button>
 
@@ -146,18 +161,22 @@ function Navbar() {
 
 						<Button
 							variant={
-								activeNav === "transactions" && !isOpen ? "active" : "ghost"
+								pathname === "/transactions" && !isOpen && !isPending
+									? "active"
+									: "ghost"
 							}
 							size="icon"
 							{...btnProps("transactions")}
 							onClick={() => {
-								setActiveNav("transactions");
 								setIsOpen(false);
-								router.push("/transactions");
+								navigate("/transactions");
 							}}
 						>
 							<ArrowLeftRight
-								className={`size-6 transition-transform duration-100 ${active === "transactions" ? "scale-125" : "scale-100"}`}
+								className={cn(
+									"size-6 transition-transform duration-100",
+									active === "transactions" ? "scale-125" : "scale-100",
+								)}
 							/>
 						</Button>
 					</>
