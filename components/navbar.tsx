@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 function Navbar() {
 	const [active, setActive] = useState<string | null>(null);
 	const [isOpen, setIsOpen] = useState(false);
+	const [activeNav, setActiveNav] = useState<"home" | "transactions">("home");
 	const pathname = usePathname();
 	const router = useRouter();
 	const navRef = useRef<HTMLElement>(null);
@@ -116,10 +117,11 @@ function Navbar() {
 				) : (
 					<>
 						<Button
-							variant={pathname === "/" && !isOpen ? "active" : "ghost"}
+							variant={activeNav === "home" && !isOpen ? "active" : "ghost"}
 							size="icon"
 							{...btnProps("home")}
 							onClick={() => {
+								setActiveNav("home");
 								setIsOpen(false);
 								router.push("/");
 							}}
@@ -144,11 +146,12 @@ function Navbar() {
 
 						<Button
 							variant={
-								pathname === "/transactions" && !isOpen ? "active" : "ghost"
+								activeNav === "transactions" && !isOpen ? "active" : "ghost"
 							}
 							size="icon"
 							{...btnProps("transactions")}
 							onClick={() => {
+								setActiveNav("transactions");
 								setIsOpen(false);
 								router.push("/transactions");
 							}}
