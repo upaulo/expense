@@ -13,6 +13,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useUIStore } from "@/store/ui";
 
 function Navbar() {
 	const [active, setActive] = useState<string | null>(null);
@@ -21,6 +22,7 @@ function Navbar() {
 	const pathname = usePathname();
 	const router = useRouter();
 	const navRef = useRef<HTMLElement>(null);
+	const { isDatePickerOpen } = useUIStore();
 
 	useEffect(() => {
 		function handleClickOutside(e: MouseEvent) {
@@ -41,7 +43,9 @@ function Navbar() {
 	});
 
 	const isSavePage =
-		pathname === "/create/product/new" || pathname === "/create/bill";
+		pathname === "/create/product/new" ||
+		pathname === "/create/bill" ||
+		(pathname.startsWith("/create/product/") && pathname !== "/create/product");
 
 	const navigate = (path: string) => {
 		startTransition(() => {
@@ -52,7 +56,10 @@ function Navbar() {
 	return (
 		<nav
 			ref={navRef}
-			className="fixed right-8 bottom-8 left-8 z-100 flex flex-col items-center gap-2"
+			className={cn(
+				"fixed right-8 bottom-8 left-8 z-40 flex flex-col items-center gap-2 transition-all duration-200",
+				isDatePickerOpen && "pointer-events-none translate-y-4 opacity-0",
+			)}
 		>
 			{/* Popup */}
 			{!isSavePage && (
@@ -70,9 +77,7 @@ function Navbar() {
 						<ShoppingCart className="size-4" />
 						Item
 					</Button>
-
 					<div className="h-4 w-px bg-white/20" />
-
 					<Button
 						variant="ghost"
 						className="w-23 gap-2 bg-white/10"
@@ -104,7 +109,6 @@ function Navbar() {
 								)}
 							/>
 						</Button>
-
 						<Button
 							variant="active"
 							size="icon-lg"
@@ -145,7 +149,6 @@ function Navbar() {
 								)}
 							/>
 						</Button>
-
 						<Button
 							variant={isOpen ? "active" : "ghost"}
 							size="icon-lg"
@@ -158,7 +161,6 @@ function Navbar() {
 								<Plus className="size-12" />
 							</div>
 						</Button>
-
 						<Button
 							variant={
 								pathname === "/transactions" && !isOpen && !isPending
